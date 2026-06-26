@@ -1,0 +1,18 @@
+@import "tailwindcss";
+
+/* 🌟 High-contrast autofill override for dark theme 🌟 */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus, 
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 100px #020617 inset !important; /* Matches bg-slate-950 */
+  -webkit-text-fill-color: #f8fafc !important; /* Matches text-slate-50 */
+  caret-color: #ffffff !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+/* Force autofill icons (like key/eye icons) to stay visible and bright */
+input::-webkit-contacts-auto-fill-button, 
+input::-webkit-credentials-auto-fill-button {
+  filter: invert(1);
+}

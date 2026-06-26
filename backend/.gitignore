@@ -1,0 +1,30 @@
+# dependencies
+node_modules/
+**/node_modules/
+
+# environment
+.env
+.env.*
+
+# prisma database
+*.db
+*.db-journal
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# build
+dist/
+build/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# vscode
+.vscode/
+
+# uploads
+uploads/

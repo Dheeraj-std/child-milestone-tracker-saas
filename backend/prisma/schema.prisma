@@ -1,0 +1,244 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Student {
+  id         String   @id @default(cuid())
+  name       String
+  age        Int
+  classroom  String
+  growth     Float    @default(0)
+  accessCode String   @default("12345")
+
+  parentId   String?
+  parent     Parent?  @relation(fields: [parentId], references: [userId], onDelete: Cascade)
+
+  teacherId  String?
+  teacher    Teacher? @relation(fields: [teacherId], references: [userId], onDelete: SetNull)
+
+  milestones      Milestone[]
+  parentFeedbacks ParentFeedback[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // New relationships
+  classroomId  String?
+  classroomObj Classroom?    @relation(fields: [classroomId], references: [id])
+  attendances  Attendance[]
+  media        Media[]
+  reports      Report[]
+  goals        Goal[]
+  observations Observation[]
+}
+
+model Milestone {
+  id       String  @id @default(cuid())
+  category String
+  score    Int
+  notes    String?
+
+  studentId String
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+}
+
+model ParentFeedback {
+  id         String   @id @default(cuid())
+  feedback   String
+  studentId  String
+  createdAt  DateTime @default(now())
+
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+}
+
+model Teacher {
+  userId     String   @id
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  classroom  String   @default("")
+  employeeId String?  @unique
+  students   Student[]
+}
+
+model Parent {
+  userId   String   @id
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  students Student[]
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      String // TEACHER, PARENT, ADMIN
+
+  teacher   Teacher?
+  parent    Parent?
+
+  // New relationships
+  teacherClassroom     Classroom?     @relation("TeacherClassrooms")
+  teacherAttendance    Attendance[]   @relation("TeacherAttendance")
+  mediaUploaded        Media[]
+  goalsCreated         Goal[]
+  observationsRecorded Observation[]
+  notifications        Notification[]
+  sentMessages         Message[]      @relation("SentMessages")
+  receivedMessages     Message[]      @relation("ReceivedMessages")
+  eventsCreated        Event[]
+  eventRSVPs           EventRSVP[]
+  activityLogs         ActivityLog[]
+}
+
+model Classroom {
+  id         String   @id @default(cuid())
+  name       String
+  section    String
+  ageGroup   String
+  
+  teacherId  String?  @unique
+  teacher    User?    @relation("TeacherClassrooms", fields: [teacherId], references: [id])
+  students   Student[]
+  
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Attendance {
+  id        String   @id @default(cuid())
+  studentId String
+  student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  teacherId String
+  teacher   User     @relation("TeacherAttendance", fields: [teacherId], references: [id])
+  date      String   // YYYY-MM-DD
+  status    String   // PRESENT, ABSENT, LATE, HALF_DAY
+  remarks   String?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([studentId, date])
+}
+
+model Media {
+  id         String   @id @default(cuid())
+  studentId  String?
+  student    Student? @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  teacherId  String
+  teacher    User     @relation(fields: [teacherId], references: [id])
+  url        String
+  caption    String?
+  category   String   // Activity, Artwork, Event, Learning
+  uploadedAt DateTime @default(now())
+}
+
+model Report {
+  id         String   @id @default(cuid())
+  studentId  String
+  student    Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  type       String   // MONTHLY_PROGRESS
+  period     String   // e.g. "June 2026"
+  summary    String?
+  pdfUrl     String?
+  createdAt  DateTime @default(now())
+}
+
+model Goal {
+  id          String    @id @default(cuid())
+  studentId   String
+  student     Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  teacherId   String
+  teacher     User      @relation(fields: [teacherId], references: [id])
+  title       String
+  status      String    // PENDING, IN_PROGRESS, COMPLETED
+  progress    Int       @default(0) // 0-100
+  targetDate  DateTime?
+  completedAt DateTime?
+  
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Observation {
+  id         String   @id @default(cuid())
+  studentId  String
+  student    Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  teacherId  String
+  teacher    User     @relation(fields: [teacherId], references: [id])
+  notes      String
+  behavior   String?
+  emotional  String?
+  learning   String?
+  
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  message   String
+  read      Boolean  @default(false)
+  type      String   // MILESTONE, OBSERVATION, ATTENDANCE, REPORT
+  createdAt DateTime @default(now())
+}
+
+model Message {
+  id           String   @id @default(cuid())
+  senderId     String
+  sender       User     @relation("SentMessages", fields: [senderId], references: [id])
+  receiverId   String
+  receiver     User     @relation("ReceivedMessages", fields: [receiverId], references: [id])
+  content      String
+  attachmentUrl String?
+  read         Boolean  @default(false)
+  createdAt    DateTime @default(now())
+}
+
+model Event {
+  id          String    @id @default(cuid())
+  title       String
+  description String?
+  date        DateTime
+  location    String?
+  imageUrl    String?
+  createdById String
+  createdBy   User      @relation(fields: [createdById], references: [id])
+  rsvps       EventRSVP[]
+  
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model EventRSVP {
+  id        String   @id @default(cuid())
+  eventId   String
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  parentId  String
+  parent    User     @relation(fields: [parentId], references: [id], onDelete: Cascade)
+  status    String   // YES, NO, MAYBE
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([eventId, parentId])
+}
+
+model ActivityLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  action    String
+  details   String?
+  ipAddress String?
+  
+  createdAt DateTime @default(now())
+}
