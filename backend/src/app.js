@@ -4,7 +4,7 @@ const cookieParser = require("cookie-parser");
 
 const authRoutes = require("./routes/authRoutes");
 const studentRoutes = require("./routes/studentRoutes");
-const tempRoute = require("./routes/tempRoute.js");
+const milestoneRoutes = require("./routes/milestoneRoutes.js");
 const parentFeedbackRoutes = require("./routes/parentFeedbackRoutes");
 const aiRoutes = require("./routes/aiRoutes");
 const classroomRoutes = require("./routes/classroomRoutes");
@@ -32,7 +32,7 @@ app.use(express.json());
 // Routes AFTER middleware
 app.use("/api/auth", authRoutes);
 app.use("/api/students", studentRoutes);
-app.use("/api/temp", tempRoute);
+app.use("/api/milestones", milestoneRoutes);
 app.use("/api/parent-feedback", parentFeedbackRoutes);
 app.use("/api/ai", aiRoutes);
 app.use("/api/classrooms", classroomRoutes);
