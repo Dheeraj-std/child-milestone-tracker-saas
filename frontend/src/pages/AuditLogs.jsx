@@ -107,7 +107,7 @@ const AuditLogs = () => {
   return (
     <div className="space-y-8 animate-fade-in max-w-6xl">
       {/* Top Banner */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-rose-950/40 to-indigo-950/30 border border-rose-500/20 rounded-3xl p-6 md:p-8">
+      <div className="relative overflow-hidden bg-linear-to-r from-rose-950/40 to-indigo-950/30 border border-rose-500/20 rounded-3xl p-6 md:p-8">
         <div className="absolute -right-10 -top-10 w-40 h-40 bg-rose-500/10 rounded-full blur-2xl"></div>
         <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>

@@ -7,6 +7,14 @@ const { logActivity } = require("../lib/auditLogger");
 
 const router = express.Router();
 
+const getCookieOptions = () => ({
+  httpOnly: true,
+  secure: true,
+  sameSite: "none",
+  path: "/",
+  maxAge: 30 * 24 * 60 * 60 * 1000,
+});
+
 // SIGNUP (DISABLED PUBLIC REGISTRATION)
 router.post("/signup", async (req, res) => {
   return res.status(403).json({
@@ -117,12 +125,7 @@ router.post("/login", async (req, res) => {
         { expiresIn: "30d" }
       );
 
-      res.cookie("token", token, {
-        httpOnly: true,
-        secure: false,
-        sameSite: "lax",
-        maxAge: 30 * 24 * 60 * 60 * 1000,
-      });
+      res.cookie("token", token, getCookieOptions(req));
 
       return res.json({
         success: true,
@@ -182,12 +185,7 @@ router.post("/login", async (req, res) => {
       { expiresIn: "30d" }
     );
 
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: false,
-      sameSite: "lax",
-      maxAge: 30 * 24 * 60 * 60 * 1000,
-    });
+    res.cookie("token", token, getCookieOptions(req));
 
     res.json({
       success: true,
@@ -253,12 +251,7 @@ router.post("/switch-student", authenticateToken, async (req, res) => {
       { expiresIn: "30d" }
     );
 
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: false,
-      sameSite: "lax",
-      maxAge: 30 * 24 * 60 * 60 * 1000,
-    });
+    res.cookie("token", token, getCookieOptions(req));
 
     res.json({
       success: true,
@@ -562,11 +555,9 @@ router.put("/teachers/:id", authenticateToken, async (req, res) => {
 
 // LOGOUT
 router.post("/logout", (req, res) => {
-  res.clearCookie("token", {
-    httpOnly: true,
-    secure: false,
-    sameSite: "lax",
-  });
+  const clearOptions = getCookieOptions(req);
+  delete clearOptions.maxAge;
+  res.clearCookie("token", clearOptions);
 
   res.json({
     success: true,
